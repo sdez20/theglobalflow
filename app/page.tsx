@@ -54,7 +54,7 @@ const Divider = () => (
   <div style={{ width: 40, height: 1, background: C.teak, margin: "32px auto", opacity: 0.4 }} />
 );
 
-function FadeIn({ children }) {
+function FadeIn({ children }: { children: React.ReactNode }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
