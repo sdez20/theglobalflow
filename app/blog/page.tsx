@@ -36,7 +36,7 @@ export default function Blog() {
   const [active, setActive] = useState("All");
   const [dropdown, setDropdown] = useState(false);
 
-  const go = id => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setDropdown(false); };
+  const go = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setDropdown(false); };
 
   return (
     <div style={{ fontFamily: "'Montserrat',sans-serif", color: C.charcoal, background: C.bg, minHeight: "100vh" }}>

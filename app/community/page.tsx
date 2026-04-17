@@ -75,7 +75,7 @@ export default function Community() {
           </section>
 
           <section style={{ padding: "0 clamp(20px,5vw,60px) 100px" }}>
-            <form onSubmit={(e) => { e.preventDefault(); setView("hub"); }} style={{ maxWidth: 440, margin: "0 auto" }}>
+            <form onSubmit={(e: React.FormEvent) => { e.preventDefault(); setView("hub"); }} style={{ maxWidth: 440, margin: "0 auto" }}>
               <input required placeholder="First Name" value={form.firstName} onChange={e => setForm({...form, firstName: e.target.value})} style={inputStyle} />
               <input required placeholder="Last Name" value={form.lastName} onChange={e => setForm({...form, lastName: e.target.value})} style={inputStyle} />
               <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm({...form, email: e.target.value})} style={inputStyle} />

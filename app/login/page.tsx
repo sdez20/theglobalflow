@@ -14,7 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // For now, just redirect to community
     // Real auth will be added when we build the database
