@@ -76,12 +76,12 @@ export default function Community() {
 
           <section style={{ padding: "0 clamp(20px,5vw,60px) 100px" }}>
             <form onSubmit={(e: React.FormEvent) => { e.preventDefault(); setView("hub"); }} style={{ maxWidth: 440, margin: "0 auto" }}>
-              <input required placeholder="First Name" value={form.firstName} onChange={e => setForm({...form, firstName: e.target.value})} style={inputStyle} />
-              <input required placeholder="Last Name" value={form.lastName} onChange={e => setForm({...form, lastName: e.target.value})} style={inputStyle} />
-              <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm({...form, email: e.target.value})} style={inputStyle} />
-              <input required type="password" placeholder="Create Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} style={inputStyle} />
-              <input placeholder="LinkedIn Profile URL" value={form.linkedin} onChange={e => setForm({...form, linkedin: e.target.value})} style={inputStyle} />
-              <input placeholder="Your Title (EA, CoS, PA, etc.)" value={form.title} onChange={e => setForm({...form, title: e.target.value})} style={inputStyle} />
+              <input required placeholder="First Name" value={form.firstName} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, firstName: e.target.value})} style={inputStyle} />
+              <input required placeholder="Last Name" value={form.lastName} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, lastName: e.target.value})} style={inputStyle} />
+              <input required type="email" placeholder="Email Address" value={form.email} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, email: e.target.value})} style={inputStyle} />
+              <input required type="password" placeholder="Create Password" value={form.password} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, password: e.target.value})} style={inputStyle} />
+              <input placeholder="LinkedIn Profile URL" value={form.linkedin} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, linkedin: e.target.value})} style={inputStyle} />
+              <input placeholder="Your Title (EA, CoS, PA, etc.)" value={form.title} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, title: e.target.value})} style={inputStyle} />
               <button type="submit" className="btn tracked" style={{ width: "100%", background: C.fawn, color: C.bg, border: "none", padding: 16, fontSize: 13, fontWeight: 600, borderRadius: 50, cursor: "pointer", fontFamily: "'Montserrat',sans-serif", marginTop: 10 }}>Join Free</button>
               <p style={{ fontSize: 12, color: C.sage, textAlign: "center", marginTop: 14, lineHeight: 1.5 }}>No spam and no sales calls. Just a warm welcome.</p>
             </form>

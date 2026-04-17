@@ -42,8 +42,8 @@ export default function Login() {
       <p style={{ fontSize: 14, color: C.sage, marginBottom: 40, fontWeight: 300 }}>Log in to access your community and modules.</p>
 
       <form onSubmit={handleLogin} style={{ maxWidth: 400, width: "100%" }}>
-        <input required type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
-        <input required type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
+        <input required type="email" placeholder="Email Address" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} style={inputStyle} />
+        <input required type="password" placeholder="Password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} style={inputStyle} />
         <button type="submit" className="btn tracked" style={{ width: "100%", background: C.fawn, color: C.bg, border: "none", padding: 16, fontSize: 13, fontWeight: 600, borderRadius: 50, cursor: "pointer", fontFamily: "'Montserrat',sans-serif", marginTop: 10 }}>Log In</button>
       </form>
 

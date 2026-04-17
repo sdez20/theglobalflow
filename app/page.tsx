@@ -21,7 +21,7 @@ const FORMSPREE_URL = "https://formspree.io/f/xkokrjzv";
 const Chev = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>;
 const Star = () => <svg width="14" height="14" viewBox="0 0 24 24" fill={C.sand}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
 
-function FAQ({ q, a }) {
+function FAQ({ q, a }: { q: string; a: string }) {
   const [o, so] = useState(false);
   return (
     <div style={{ borderBottom: `1px solid ${C.borderLight}` }}>
@@ -36,17 +36,17 @@ function FAQ({ q, a }) {
   );
 }
 
-const Sec = ({ children, bg = C.bg, id, py = 100 }) => (
+const Sec = ({ children, bg = C.bg, id, py = 100 }: { children: React.ReactNode; bg?: string; id?: string; py?: number }) => (
   <section id={id} style={{ background: bg, padding: `${py}px clamp(20px, 5vw, 60px)` }}>
     <div style={{ maxWidth: 720, margin: "0 auto" }}>{children}</div>
   </section>
 );
 
-const H2 = ({ children }) => (
+const H2 = ({ children }: { children: React.ReactNode }) => (
   <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(30px, 5vw, 48px)", fontWeight: 400, lineHeight: 1.2, color: C.dark, textAlign: "center", margin: "0 0 20px" }}>{children}</h2>
 );
 
-const Body = ({ children, center = true }) => (
+const Body = ({ children, center = true }: { children: React.ReactNode; center?: boolean }) => (
   <p style={{ fontSize: 16, lineHeight: 1.8, color: C.fawn, textAlign: center ? "center" : "left", margin: "0 0 16px", maxWidth: 560, marginLeft: center ? "auto" : 0, marginRight: center ? "auto" : 0, fontWeight: 300 }}>{children}</p>
 );
 
@@ -267,11 +267,11 @@ export default function GlobalFlow() {
         <H2>Join Our Waitlist</H2>
         <Body>Our next intake for members will be coming soon. We bring new members in through cohorts so everyone gets a proper welcome and the community stays exceptional.</Body>
         <form onSubmit={handleSubmit} style={{ maxWidth: 480, margin: "32px auto 0" }}>
-          <input required placeholder="First Name" value={form.firstName} onChange={e => setForm({...form, firstName: e.target.value})} style={inputStyle} />
-          <input required placeholder="Last Name" value={form.lastName} onChange={e => setForm({...form, lastName: e.target.value})} style={inputStyle} />
-          <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm({...form, email: e.target.value})} style={inputStyle} />
-          <input placeholder="Your Role (EA, CoS, PA, etc.)" value={form.role} onChange={e => setForm({...form, role: e.target.value})} style={inputStyle} />
-          <select value={form.source} onChange={e => setForm({...form, source: e.target.value})} style={{...inputStyle, color: form.source ? C.dark : C.sage, appearance: "none"}}>
+          <input required placeholder="First Name" value={form.firstName} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, firstName: e.target.value})} style={inputStyle} />
+          <input required placeholder="Last Name" value={form.lastName} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, lastName: e.target.value})} style={inputStyle} />
+          <input required type="email" placeholder="Email Address" value={form.email} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, email: e.target.value})} style={inputStyle} />
+          <input placeholder="Your Role (EA, CoS, PA, etc.)" value={form.role} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, role: e.target.value})} style={inputStyle} />
+          <select value={form.source} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, source: e.target.value})} style={{...inputStyle, color: form.source ? C.dark : C.sage, appearance: "none"}}>
             <option value="">How did you hear about us?</option>
             <option value="Another EA told me">Another EA told me (love that)</option>
             <option value="LinkedIn">LinkedIn</option>

@@ -54,7 +54,7 @@ export default function Blog() {
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
           <div style={{ position: "relative" }}>
             <Link href="/" className="tracked" style={{ cursor: "pointer", fontFamily: "'Cormorant Garamond',serif", fontSize: 16, fontWeight: 500, color: C.teak, textDecoration: "none" }}>
-              The Global Flow <span style={{ fontSize: 10, marginLeft: 4, opacity: 0.5 }} onClick={(e) => { e.preventDefault(); setDropdown(!dropdown); }}>▾</span>
+              The Global Flow <span style={{ fontSize: 10, marginLeft: 4, opacity: 0.5 }} onClick={(e: React.MouseEvent) => { e.preventDefault(); setDropdown(!dropdown); }}>▾</span>
             </Link>
             {dropdown && (
               <div style={{ position: "absolute", top: 44, left: 0, background: C.bg, border: `1px solid ${C.borderLight}`, padding: "16px 28px", zIndex: 100, minWidth: 180 }}>
