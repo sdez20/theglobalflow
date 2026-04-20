@@ -54,7 +54,7 @@ const Divider = () => (
   <div style={{ width: 40, height: 1, background: C.teak, margin: "32px auto", opacity: 0.4 }} />
 );
 
-function FadeIn({ children }: { children: React.ReactNode }) {
+function FadeIn({ children }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -123,6 +123,7 @@ export default function GlobalFlow() {
                   <button key={id} onClick={() => go(id)} className="tracked" style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", borderBottom: `1px solid ${C.border}`, padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, cursor: "pointer", fontFamily: "'Montserrat',sans-serif" }}>{l}</button>
                 ))}
                 <a href="/community" className="tracked" style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, fontFamily: "'Montserrat',sans-serif", textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>Community</a>
+                <a href="/pricing" className="tracked" style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, fontFamily: "'Montserrat',sans-serif", textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>Pricing</a>
                 <a href="/blog" className="tracked" style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, fontFamily: "'Montserrat',sans-serif", textDecoration: "none" }}>Blog</a>
               </div>
             )}
