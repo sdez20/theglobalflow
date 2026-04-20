@@ -25,7 +25,11 @@ export default function Login() {
       return;
     }
     localStorage.setItem("tgf_member", JSON.stringify(data[0]));
-    router.push("/community");
+    if (data[0].tier && data[0].tier !== "free") {
+      router.push("/dashboard");
+    } else {
+      router.push("/community");
+    }
   };
 
   const inputStyle: any = { width: "100%", padding: "16px 20px", marginBottom: 14, background: C.bone, border: `1px solid ${C.borderLight}`, borderRadius: 8, fontSize: 14, color: C.dark, outline: "none", fontFamily: "'Montserrat',sans-serif" };
