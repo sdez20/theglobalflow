@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "../supabase";
 
 const C = {
   bg: "#FEFCF9", bone: "#F2EAD7", sand: "#E7B88D", teak: "#B08968",
@@ -12,25 +13,26 @@ const C = {
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just redirect to community
-    // Real auth will be added when we build the database
+    setError("");
+    const { data, error: err } = await supabase.from("members").select("*").eq("email", email).eq("password_hash", password).limit(1);
+    if (err || !data || data.length === 0) {
+      setError("Invalid email or password. Please try again.");
+      return;
+    }
+    localStorage.setItem("tgf_member", JSON.stringify(data[0]));
     router.push("/community");
   };
 
-  const inputStyle = { width: "100%", padding: "16px 20px", marginBottom: 14, background: C.bone, border: `1px solid ${C.borderLight}`, borderRadius: 8, fontSize: 14, color: C.dark, outline: "none", fontFamily: "'Montserrat',sans-serif" };
+  const inputStyle: any = { width: "100%", padding: "16px 20px", marginBottom: 14, background: C.bone, border: `1px solid ${C.borderLight}`, borderRadius: 8, fontSize: 14, color: C.dark, outline: "none", fontFamily: "'Montserrat',sans-serif" };
 
   return (
     <div style={{ fontFamily: "'Montserrat',sans-serif", color: C.dark, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px clamp(20px,5vw,60px)" }}>
-      <style>{`
-        *{box-sizing:border-box}
-        a{text-decoration:none;color:inherit}
-        .btn:hover{opacity:.88;transform:translateY(-1px)}
-        .tracked{letter-spacing:0.35em;text-transform:uppercase}
-      `}</style>
+      <style>{`*{box-sizing:border-box}a{text-decoration:none;color:inherit}.btn:hover{opacity:.88;transform:translateY(-1px)}.tracked{letter-spacing:0.35em;text-transform:uppercase}`}</style>
 
       <Link href="/" className="tracked" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 16, fontWeight: 500, color: C.teak, marginBottom: 80 }}>The Global Flow</Link>
 
@@ -42,18 +44,14 @@ export default function Login() {
       <p style={{ fontSize: 14, color: C.sage, marginBottom: 40, fontWeight: 300 }}>Log in to access your community and modules.</p>
 
       <form onSubmit={handleLogin} style={{ maxWidth: 400, width: "100%" }}>
-        <input required type="email" placeholder="Email Address" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} style={inputStyle} />
-        <input required type="password" placeholder="Password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} style={inputStyle} />
+        {error && <p style={{ color: "#c44", fontSize: 13, textAlign: "center", marginBottom: 14 }}>{error}</p>}
+        <input required type="email" placeholder="Email Address" value={email} onChange={(e: any) => setEmail(e.target.value)} style={inputStyle} />
+        <input required type="password" placeholder="Password" value={password} onChange={(e: any) => setPassword(e.target.value)} style={inputStyle} />
         <button type="submit" className="btn tracked" style={{ width: "100%", background: C.fawn, color: C.bg, border: "none", padding: 16, fontSize: 13, fontWeight: 600, borderRadius: 50, cursor: "pointer", fontFamily: "'Montserrat',sans-serif", marginTop: 10 }}>Log In</button>
       </form>
 
       <div style={{ marginTop: 28, textAlign: "center" }}>
-        <p style={{ fontSize: 13, color: C.sage, marginBottom: 8 }}>
-          <a href="#" style={{ color: C.teak, fontWeight: 500 }}>Forgot your password?</a>
-        </p>
-        <p style={{ fontSize: 13, color: C.sage }}>
-          Don't have an account? <a href="/community" style={{ color: C.teak, fontWeight: 500 }}>Join free</a>
-        </p>
+        <p style={{ fontSize: 13, color: C.sage }}>Don't have an account? <Link href="/community" style={{ color: C.teak, fontWeight: 500 }}>Join free</Link></p>
       </div>
     </div>
   );
