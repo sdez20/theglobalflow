@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../supabase";
@@ -10,7 +10,7 @@ const C = {
   border: "rgba(176,137,104,0.12)", borderLight: "rgba(176,137,104,0.15)",
 };
 
-export default function ResetPassword() {
+function ResetForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -59,7 +59,7 @@ export default function ResetPassword() {
     <div style={{ fontFamily: "'Montserrat',sans-serif", background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, textAlign: "center" }}>
       <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, color: C.dark, marginBottom: 12 }}>This reset link is invalid or has expired.</p>
       <p style={{ fontSize: 14, color: C.sage, marginBottom: 28, fontWeight: 300 }}>Please request a new password reset.</p>
-      <Link href="/login" style={{ fontSize: 14, color: C.teak, fontWeight: 500 }}>Back to Login</Link>
+      <Link href="/login" style={{ fontSize: 14, color: C.teak, fontWeight: 500, textDecoration: "none" }}>Back to Login</Link>
     </div>
   );
 
@@ -73,13 +73,9 @@ export default function ResetPassword() {
 
   return (
     <div style={{ fontFamily: "'Montserrat',sans-serif", color: C.dark, background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px clamp(20px,5vw,60px)" }}>
-      <style>{`*{box-sizing:border-box}.tracked{letter-spacing:0.35em;text-transform:uppercase}`}</style>
-
-      <Link href="/" className="tracked" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 16, fontWeight: 500, color: C.teak, marginBottom: 60, textDecoration: "none" }}>The Global Flow</Link>
-
+      <Link href="/" className="tracked" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 16, fontWeight: 500, color: C.teak, marginBottom: 60, textDecoration: "none", letterSpacing: "0.35em", textTransform: "uppercase" as const }}>The Global Flow</Link>
       <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 400, color: C.dark, marginBottom: 12 }}>Set Your New Password</h2>
       <p style={{ fontSize: 14, color: C.sage, marginBottom: 32, fontWeight: 300 }}>Enter a new password below.</p>
-
       <form onSubmit={handleReset} style={{ maxWidth: 400, width: "100%" }}>
         {error && <p style={{ color: "#c44", fontSize: 13, textAlign: "center", marginBottom: 14 }}>{error}</p>}
         <input required type="password" placeholder="New Password" value={newPassword} onChange={(e: any) => setNewPassword(e.target.value)} style={inputStyle} />
@@ -88,5 +84,13 @@ export default function ResetPassword() {
         <p style={{ fontSize: 12, color: C.sage, textAlign: "center", marginTop: 14 }}>After updating, you'll be redirected to log in.</p>
       </form>
     </div>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<div style={{ fontFamily: "'Montserrat',sans-serif", background: "#FEFCF9", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#88856A" }}>Loading...</div>}>
+      <ResetForm />
+    </Suspense>
   );
 }
