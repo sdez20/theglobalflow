@@ -318,9 +318,14 @@ export default function GlobalFlow() {
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div>
             <span className="tracked" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 14, fontWeight: 500, color: C.teak }}>The Global Flow</span>
-            <p style={{ fontSize: 12, color: C.sage, marginTop: 4 }}>Be yourself everywhere, succeed everywhere.</p>
           </div>
-          <p style={{ fontSize: 11, color: C.sage }}>© 2026 The Global Flow™</p>
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontSize: 11, color: C.sage }}>© 2026 The Global Flow™</p>
+            <div style={{ marginTop: 6, display: "flex", gap: 16, justifyContent: "flex-end" }}>
+              <a href="/privacy" style={{ fontSize: 9, color: C.sage, opacity: 0.6, textDecoration: "none" }}>Privacy Policy</a>
+              <a href="/terms" style={{ fontSize: 9, color: C.sage, opacity: 0.6, textDecoration: "none" }}>Terms of Service</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
