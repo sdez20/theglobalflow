@@ -14,6 +14,9 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotMsg, setForgotMsg] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -32,6 +35,25 @@ export default function Login() {
     }
   };
 
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotMsg("");
+    const { data } = await supabase.from("members").select("id, first_name, email").eq("email", forgotEmail.trim()).limit(1);
+    if (!data || data.length === 0) {
+      setForgotMsg("If that email exists, a reset link has been sent.");
+      return;
+    }
+    const token = crypto.randomUUID();
+    await supabase.from("reset_tokens").insert({ member_id: data[0].id, token });
+    const link = `https://theglobalflow.co/reset-password?token=${token}`;
+    await fetch("https://formspree.io/f/xkokrjzv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ email: forgotEmail, _subject: "Reset Your Password — The Global Flow", message: `Hi ${data[0].first_name}! Here is your password reset link: ${link}\n\nThis link will expire after 24 hours and can only be used once. If you didn't request this, please ignore this email.` }),
+    });
+    setForgotMsg("If that email exists, a reset link has been sent.");
+  };
+
   const inputStyle: any = { width: "100%", padding: "16px 20px", marginBottom: 14, background: C.bone, border: `1px solid ${C.borderLight}`, borderRadius: 8, fontSize: 14, color: C.dark, outline: "none", fontFamily: "'Montserrat',sans-serif" };
 
   return (
@@ -44,19 +66,37 @@ export default function Login() {
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.teak} strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
 
-      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 400, lineHeight: 1.15, color: C.dark, margin: "0 0 12px", textAlign: "center" }}>Welcome Back</h1>
-      <p style={{ fontSize: 14, color: C.sage, marginBottom: 40, fontWeight: 300 }}>Log in to access your community and modules.</p>
-
-      <form onSubmit={handleLogin} style={{ maxWidth: 400, width: "100%" }}>
-        {error && <p style={{ color: "#c44", fontSize: 13, textAlign: "center", marginBottom: 14 }}>{error}</p>}
-        <input required type="email" placeholder="Email Address" value={email} onChange={(e: any) => setEmail(e.target.value)} style={inputStyle} />
-        <input required type="password" placeholder="Password" value={password} onChange={(e: any) => setPassword(e.target.value)} style={inputStyle} />
-        <button type="submit" className="btn tracked" style={{ width: "100%", background: C.fawn, color: C.bg, border: "none", padding: 16, fontSize: 13, fontWeight: 600, borderRadius: 50, cursor: "pointer", fontFamily: "'Montserrat',sans-serif", marginTop: 10 }}>Log In</button>
-      </form>
-
-      <div style={{ marginTop: 28, textAlign: "center" }}>
-        <p style={{ fontSize: 13, color: C.sage }}>Don't have an account? <Link href="/community" style={{ color: C.teak, fontWeight: 500 }}>Join free</Link></p>
-      </div>
+      {!showForgot ? (
+        <>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 400, lineHeight: 1.15, color: C.dark, margin: "0 0 12px", textAlign: "center" }}>Welcome Back</h1>
+          <p style={{ fontSize: 14, color: C.sage, marginBottom: 40, fontWeight: 300 }}>Log in to access your community and modules.</p>
+          <form onSubmit={handleLogin} style={{ maxWidth: 400, width: "100%" }}>
+            {error && <p style={{ color: "#c44", fontSize: 13, textAlign: "center", marginBottom: 14 }}>{error}</p>}
+            <input required type="email" placeholder="Email Address" value={email} onChange={(e: any) => setEmail(e.target.value)} style={inputStyle} />
+            <input required type="password" placeholder="Password" value={password} onChange={(e: any) => setPassword(e.target.value)} style={inputStyle} />
+            <button type="submit" className="btn tracked" style={{ width: "100%", background: C.fawn, color: C.bg, border: "none", padding: 16, fontSize: 13, fontWeight: 600, borderRadius: 50, cursor: "pointer", fontFamily: "'Montserrat',sans-serif", marginTop: 10 }}>Log In</button>
+          </form>
+          <div style={{ marginTop: 28, textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: C.sage, marginBottom: 8 }}>
+              <button onClick={() => setShowForgot(true)} style={{ background: "none", border: "none", color: C.teak, fontWeight: 500, cursor: "pointer", fontSize: 13, fontFamily: "'Montserrat',sans-serif" }}>Forgot your password?</button>
+            </p>
+            <p style={{ fontSize: 13, color: C.sage }}>Don't have an account? <Link href="/community" style={{ color: C.teak, fontWeight: 500 }}>Join free</Link></p>
+          </div>
+        </>
+      ) : (
+        <>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 400, lineHeight: 1.15, color: C.dark, margin: "0 0 12px", textAlign: "center" }}>Reset Your Password</h1>
+          <p style={{ fontSize: 14, color: C.sage, marginBottom: 40, fontWeight: 300 }}>Enter your email and we'll send you a reset link.</p>
+          <form onSubmit={handleForgot} style={{ maxWidth: 400, width: "100%" }}>
+            {forgotMsg && <p style={{ color: C.teak, fontSize: 13, textAlign: "center", marginBottom: 14 }}>{forgotMsg}</p>}
+            <input required type="email" placeholder="Email Address" value={forgotEmail} onChange={(e: any) => setForgotEmail(e.target.value)} style={inputStyle} />
+            <button type="submit" style={{ width: "100%", background: C.fawn, color: C.bg, border: "none", padding: 16, fontSize: 13, fontWeight: 600, borderRadius: 50, cursor: "pointer", fontFamily: "'Montserrat',sans-serif", marginTop: 10 }}>Send Reset Link</button>
+          </form>
+          <div style={{ marginTop: 28, textAlign: "center" }}>
+            <button onClick={() => { setShowForgot(false); setForgotMsg(""); }} style={{ background: "none", border: "none", color: C.teak, fontWeight: 500, cursor: "pointer", fontSize: 13, fontFamily: "'Montserrat',sans-serif" }}>Back to Login</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
