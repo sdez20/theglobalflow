@@ -25,7 +25,7 @@ export default function Prive() {
 
       <section style={{ padding: "120px clamp(20px,5vw,60px) 80px", textAlign: "center", background: "linear-gradient(180deg, #FFFFFF 0%, #F0F4F8 100%)" }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
-          <p className="tracked" style={{ fontSize: 10, color: C.blue, marginBottom: 24, letterSpacing: "0.5em", fontWeight: 500 }}>By Invitation</p>
+          <p className="tracked" style={{ fontSize: 10, color: C.blue, marginBottom: 24, letterSpacing: "0.5em", fontWeight: 500 }}>Curated Experiences</p>
           <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(38px, 5.5vw, 56px)", fontWeight: 300, lineHeight: 1.1, color: C.dark, margin: "0 0 20px" }}>The Global Flow <em style={{ color: C.blue }}>Privé</em></h1>
           <div style={{ width: 60, height: 1, background: "linear-gradient(90deg, transparent, " + C.blue + ", transparent)", margin: "28px auto" }} />
           <p style={{ fontSize: 16, lineHeight: 1.9, color: C.fawn, maxWidth: 480, margin: "0 auto", fontWeight: 300 }}>Curated travel, residences, and experiences for principals and families who need precision, not just luxury.</p>
