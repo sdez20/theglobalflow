@@ -128,6 +128,8 @@ export default function GlobalFlow() {
               </div>
             )}
           </div>
+<a href="/prive" className="tracked" style={{ fontSize: 10, fontWeight: 500, color: "#8FAABE", textDecoration: "none" }}>Privé</a>
+          <a href="/wellness" className="tracked" style={{ fontSize: 10, fontWeight: 500, color: "#9CAF88", textDecoration: "none" }}>Wellness</a>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <a href="/login" style={{ width: 36, height: 36, borderRadius: "50%", border: `1px solid ${C.borderLight}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all .3s" }} title="Member Login">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.sage} strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
