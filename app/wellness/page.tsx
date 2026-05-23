@@ -139,7 +139,7 @@ export default function Wellness() {
       </section>
 
       <section style={{ padding: "80px clamp(20px,5vw,60px)", background: C.bg }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 40 }}>
+        <div style={{ maxWidth: 500, margin: "0 auto", display: "flex", flexDirection: "column" as const, gap: 60 }}>
           <div>
             <p className="tracked" style={{ fontSize: 10, color: C.green, marginBottom: 16, letterSpacing: "0.3em", fontWeight: 500 }}>For Women</p>
             <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 26, fontWeight: 400, color: C.dark, marginBottom: 10 }}>Stay in the Know</h3>
