@@ -1,333 +1,442 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-const C = {
-  bg: "#FEFCF9",
-  bone: "#F2EAD7",
-  sand: "#E7B88D",
-  teak: "#B08968",
-  fawn: "#6A4F2E",
-  sage: "#88856A",
-  dark: "#3A2E1F",
-  charcoal: "#474747",
-  white: "#FEFCF9",
-  border: "rgba(176,137,104,0.12)",
-  borderLight: "rgba(176,137,104,0.15)",
-};
+const CSS = `
+  :root{
+    --bg:#FFFFFF; --ink:#1F2421; --ink-soft:#51564F; --green:#2B4D3B; --green-mid:#3A6650;
+    --line:rgba(31,36,33,0.12); --wash:#F7F8F6; --gold:#BFA06A; --gold-deep:#8C7333;
+    --serif:"Cormorant Garamond", Georgia, serif; --sans:"Figtree", -apple-system, sans-serif;
+  }
+  .gfw *{ margin:0; padding:0; box-sizing:border-box; }
+  .gfw{ background:var(--bg); color:var(--ink); font-family:var(--sans); font-weight:400; line-height:1.65; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  .gfw ::selection{ background:var(--green); color:#fff; }
+  .gfw .wrap{ width:90%; max-width:1140px; margin:0 auto; }
+  .gfw h1,.gfw h2,.gfw h3{ font-family:var(--serif); font-weight:500; line-height:1.06; letter-spacing:-0.005em; color:var(--ink); }
+  .gfw .em{ font-style:italic; color:var(--green); }
+  .gfw .rise{ opacity:0; transform:translateY(22px); transition:opacity 1s ease, transform 1s ease; }
+  .gfw .rise.in{ opacity:1; transform:none; }
+  .gfw nav{ position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:22px 5%; transition:all .45s ease; }
+  .gfw nav.docked{ background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); padding:14px 5%; box-shadow:0 1px 0 var(--line); }
+  .gfw .brand{ font-family:var(--serif); font-size:23px; letter-spacing:.01em; color:var(--ink); text-decoration:none; }
+  .gfw .brand span{ font-style:italic; color:var(--green); }
+  .gfw .navlinks{ display:flex; align-items:center; gap:32px; }
+  .gfw .navlinks a{ color:var(--ink-soft); text-decoration:none; font-size:13px; letter-spacing:.14em; text-transform:uppercase; position:relative; padding:4px 0; }
+  .gfw .navlinks a::after{ content:""; position:absolute; left:0; bottom:0; height:1px; width:0; background:var(--green); transition:width .4s ease; }
+  .gfw .navlinks a:hover::after, .gfw .navlinks a.active::after{ width:100%; }
+  .gfw .navlinks a.active{ color:var(--green); }
+  .gfw .nav-cta{ border:1px solid var(--green); border-radius:40px; padding:9px 20px !important; color:var(--green) !important; transition:all .35s ease; }
+  .gfw .nav-cta::after{ display:none; }
+  .gfw .nav-cta:hover{ background:var(--green); color:#fff !important; }
+  .gfw .menu-btn{ display:none; }
+  .gfw header.hero{ min-height:96vh; display:flex; flex-direction:column; justify-content:center; text-align:center; padding:150px 0 90px; }
+  .gfw .eyebrow{ font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--gold-deep); font-weight:600; margin-bottom:30px; }
+  .gfw .hero h1{ font-size:clamp(3.2rem,9vw,7.4rem); line-height:0.96; }
+  .gfw .hero-sub{ margin:34px auto 0; max-width:60ch; font-size:clamp(1.05rem,1.5vw,1.28rem); color:var(--ink-soft); font-weight:300; }
+  .gfw .hero-rule{ width:60px; height:2px; background:var(--gold); margin:30px auto 0; }
+  .gfw .tag{ display:inline-flex; align-items:center; gap:10px; margin-top:30px; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold-deep); }
+  .gfw .dot{ width:7px; height:7px; border-radius:50%; background:var(--gold); animation:gfwpulse 2.6s infinite; }
+  @keyframes gfwpulse{ 0%{box-shadow:0 0 0 0 rgba(191,160,106,.5);} 70%{box-shadow:0 0 0 11px rgba(191,160,106,0);} 100%{box-shadow:0 0 0 0 rgba(191,160,106,0);} }
+  .gfw .btn{ display:inline-block; background:var(--green); color:#fff; text-decoration:none; padding:16px 38px; border-radius:46px; font-size:13px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; border:none; cursor:pointer; transition:all .35s ease; margin-top:36px; }
+  .gfw .btn:hover{ background:var(--green-mid); transform:translateY(-2px); }
+  .gfw section{ padding:110px 0; }
+  .gfw .label{ font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-deep); font-weight:600; margin-bottom:24px; }
+  .gfw .vision-grid{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:64px; align-items:start; }
+  .gfw .vision h2{ font-size:clamp(2.2rem,4.4vw,3.4rem); }
+  .gfw .vision-body p{ font-size:1.18rem; color:var(--ink-soft); font-weight:300; margin-bottom:22px; }
+  .gfw .vision-body p:last-child{ margin-bottom:0; font-family:var(--serif); font-style:italic; font-size:1.5rem; color:var(--green); }
+  .gfw .serves{ background:var(--wash); text-align:center; }
+  .gfw .serves h2{ font-size:clamp(2rem,4vw,3rem); max-width:18ch; margin:0 auto 40px; }
+  .gfw .roles{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; max-width:880px; margin:0 auto 44px; }
+  .gfw .role{ border:1px solid var(--line); border-radius:40px; padding:11px 26px; font-size:.96rem; color:var(--ink); transition:all .35s ease; cursor:default; background:#fff; }
+  .gfw .role:hover{ background:var(--green); color:#fff; border-color:var(--green); transform:translateY(-2px); }
+  .gfw .serves p{ max-width:60ch; margin:0 auto; color:var(--ink-soft); font-weight:300; font-size:1.16rem; }
+  .gfw .pillars h2{ font-size:clamp(2.2rem,4.6vw,3.6rem); max-width:16ch; margin-bottom:18px; }
+  .gfw .pillars-intro{ color:var(--ink-soft); font-weight:300; font-size:1.14rem; max-width:54ch; margin-bottom:56px; }
+  .gfw .pillar-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+  .gfw .pillar{ background:#fff; padding:42px 38px; transition:background .4s ease; }
+  .gfw .pillar:hover{ background:var(--wash); }
+  .gfw .pillar-num{ font-family:var(--serif); font-style:italic; font-size:1.1rem; color:var(--gold); }
+  .gfw .pillar h3{ font-size:1.7rem; margin:8px 0 14px; }
+  .gfw .pillar p{ font-size:1rem; color:var(--ink-soft); font-weight:300; line-height:1.6; }
+  .gfw .net{ background:var(--wash); }
+  .gfw .net h2{ font-size:clamp(2.2rem,4.6vw,3.6rem); max-width:14ch; margin-bottom:14px; }
+  .gfw .net-sub{ max-width:56ch; color:var(--ink-soft); font-weight:300; font-size:1.14rem; margin-bottom:56px; }
+  .gfw .net-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+  .gfw .prac{ background:#fff; padding:38px 32px; min-height:250px; display:flex; flex-direction:column; transition:background .4s ease; }
+  .gfw .prac:hover{ background:var(--wash); }
+  .gfw .prac.lead{ background:var(--green); color:#fff; }
+  .gfw .prac.lead:hover{ background:var(--green-mid); }
+  .gfw .prac-mono{ font-family:var(--serif); font-style:italic; font-size:2.6rem; color:var(--gold); margin-bottom:auto; }
+  .gfw .prac.lead .prac-mono{ color:#fff; }
+  .gfw .prac-status{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:12px; }
+  .gfw .prac.lead .prac-status{ color:rgba(255,255,255,0.8); }
+  .gfw .prac h3{ font-size:1.45rem; margin-bottom:9px; }
+  .gfw .prac.lead h3{ color:#fff; }
+  .gfw .prac p{ font-size:.93rem; color:var(--ink-soft); font-weight:300; line-height:1.55; }
+  .gfw .prac.lead p{ color:rgba(255,255,255,0.82); }
+  .gfw .culture{ text-align:center; }
+  .gfw .culture h2{ font-size:clamp(2rem,4.2vw,3.2rem); max-width:18ch; margin:0 auto 22px; }
+  .gfw .culture > .wrap > p{ max-width:56ch; margin:0 auto 46px; color:var(--ink-soft); font-weight:300; font-size:1.16rem; }
+  .gfw .traditions{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; max-width:860px; margin:0 auto; }
+  .gfw .trad{ border:1px solid var(--line); border-radius:40px; padding:10px 22px; font-size:.93rem; color:var(--ink-soft); transition:all .35s ease; cursor:default; }
+  .gfw .trad:hover{ background:var(--green); color:#fff; border-color:var(--green); }
+  .gfw .culture small{ display:block; margin-top:40px; letter-spacing:.16em; text-transform:uppercase; font-size:12px; color:var(--gold-deep); }
+  .gfw .forms{ background:var(--wash); }
+  .gfw .forms-head{ text-align:center; margin-bottom:64px; }
+  .gfw .forms-head h2{ font-size:clamp(2.2rem,4.6vw,3.4rem); }
+  .gfw .forms-head p{ color:var(--ink-soft); font-weight:300; font-size:1.14rem; max-width:50ch; margin:14px auto 0; }
+  .gfw .form-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:start; }
+  .gfw .card{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:40px 34px; }
+  .gfw .card .label{ margin-bottom:14px; }
+  .gfw .card h3{ font-size:1.8rem; margin-bottom:12px; }
+  .gfw .card > p{ color:var(--ink-soft); font-weight:300; font-size:.98rem; margin-bottom:28px; }
+  .gfw .field{ margin-bottom:16px; }
+  .gfw .field label{ display:block; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:6px; }
+  .gfw .field input, .gfw .field select, .gfw .field textarea{ width:100%; background:#fff; border:1px solid var(--line); border-radius:4px; color:var(--ink); font-family:var(--sans); font-size:.96rem; padding:12px 13px; outline:none; transition:border-color .3s ease; }
+  .gfw .field input::placeholder, .gfw .field textarea::placeholder{ color:#a7aaa4; }
+  .gfw .field input:focus, .gfw .field select:focus, .gfw .field textarea:focus{ border-color:var(--green); }
+  .gfw .field select{ -webkit-appearance:none; appearance:none; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232B4D3B' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+  .gfw .field textarea{ resize:vertical; min-height:70px; }
+  .gfw .card .btn{ width:100%; margin-top:10px; }
+  .gfw .card.featured{ border-color:var(--green); box-shadow:0 14px 40px rgba(43,77,59,0.1); }
+  .gfw .form-ok{ color:var(--green); font-family:var(--serif); font-style:italic; font-size:1.05rem; margin-top:16px; min-height:1.3em; }
+  .gfw .form-note{ font-size:.8rem; color:var(--ink-soft); margin-top:16px; }
+  .gfw footer{ background:#fff; padding:64px 0 48px; border-top:1px solid var(--line); }
+  .gfw .foot-grid{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:26px; }
+  .gfw .foot-brand{ font-family:var(--serif); font-size:1.9rem; }
+  .gfw .foot-brand span{ font-style:italic; color:var(--green); }
+  .gfw .foot-links{ display:flex; gap:24px; }
+  .gfw .foot-links a{ color:var(--ink-soft); text-decoration:none; font-size:14px; transition:color .3s ease; }
+  .gfw .foot-links a:hover{ color:var(--green); }
+  .gfw .copy{ margin-top:36px; font-size:13px; color:var(--green-mid); letter-spacing:.04em; }
+  @media(max-width:900px){
+    .gfw .navlinks{ position:fixed; inset:0; background:#fff; flex-direction:column; justify-content:center; gap:28px; transform:translateX(100%); transition:transform .5s ease; z-index:90; }
+    .gfw .navlinks.open{ transform:none; }
+    .gfw .navlinks a{ font-size:18px; }
+    .gfw .menu-btn{ display:flex; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; z-index:95; }
+    .gfw .menu-btn span{ width:26px; height:2px; background:var(--ink); transition:.3s; }
+    .gfw .menu-btn.x span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+    .gfw .menu-btn.x span:nth-child(2){ opacity:0; }
+    .gfw .menu-btn.x span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+    .gfw .vision-grid, .gfw .pillar-grid, .gfw .net-grid, .gfw .form-grid{ grid-template-columns:1fr; }
+    .gfw section{ padding:74px 0; }
+  }
+`;
 
-const FORMSPREE_URL = "https://formspree.io/f/xkokrjzv";
-
-const Chev = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>;
-const Star = () => <svg width="14" height="14" viewBox="0 0 24 24" fill={C.sand}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
-
-function FAQ({ q, a }: { q: string; a: string }) {
-  const [o, so] = useState(false);
-  return (
-    <div style={{ borderBottom: `1px solid ${C.borderLight}` }}>
-      <button onClick={() => so(!o)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 0", background: "none", border: "none", cursor: "pointer", fontSize: 17, fontWeight: 600, color: C.dark, textAlign: "left", lineHeight: 1.45, fontFamily: "'Montserrat',sans-serif" }}>
-        {q}
-        <span style={{ transform: o ? "rotate(180deg)" : "", transition: "transform .3s", marginLeft: 14, flexShrink: 0, color: C.teak }}><Chev /></span>
-      </button>
-      <div style={{ maxHeight: o ? 600 : 0, overflow: "hidden", transition: "max-height .4s ease" }}>
-        <p style={{ padding: "0 0 24px", margin: 0, fontSize: 15, lineHeight: 1.8, color: C.sage }}>{a}</p>
-      </div>
-    </div>
-  );
-}
-
-const Sec = ({ children, bg = C.bg, id, py = 100 }: { children: React.ReactNode; bg?: string; id?: string; py?: number }) => (
-  <section id={id} style={{ background: bg, padding: `${py}px clamp(20px, 5vw, 60px)` }}>
-    <div style={{ maxWidth: 720, margin: "0 auto" }}>{children}</div>
-  </section>
-);
-
-const H2 = ({ children }: { children: React.ReactNode }) => (
-  <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(30px, 5vw, 48px)", fontWeight: 400, lineHeight: 1.2, color: C.dark, textAlign: "center", margin: "0 0 20px" }}>{children}</h2>
-);
-
-const Body = ({ children, center = true }: { children: React.ReactNode; center?: boolean }) => (
-  <p style={{ fontSize: 16, lineHeight: 1.8, color: C.fawn, textAlign: center ? "center" : "left", margin: "0 0 16px", maxWidth: 560, marginLeft: center ? "auto" : 0, marginRight: center ? "auto" : 0, fontWeight: 300 }}>{children}</p>
-);
-
-const Divider = () => (
-  <div style={{ width: 40, height: 1, background: C.teak, margin: "32px auto", opacity: 0.4 }} />
-);
-
-function FadeIn({ children }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+export default function Home() {
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.15 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  return (
-    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(30px)", transition: "opacity 0.8s ease, transform 0.8s ease" }}>
-      {children}
-    </div>
-  );
-}
+    const fontLink = document.createElement("link");
+    fontLink.rel = "stylesheet";
+    fontLink.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Figtree:wght@300;400;500;600&display=swap";
+    document.head.appendChild(fontLink);
 
-export default function GlobalFlow() {
-  const [dropdown, setDropdown] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", role: "", source: "" });
-  const router = useRouter();
+    const nav = document.getElementById("gfwnav");
+    const onScroll = () => nav && nav.classList.toggle("docked", window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
 
-  const go = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setDropdown(false); };
+    const menuBtn = document.getElementById("gfwMenuBtn");
+    const navlinks = document.getElementById("gfwnavlinks");
+    const toggleMenu = () => { menuBtn?.classList.toggle("x"); navlinks?.classList.toggle("open"); };
+    menuBtn?.addEventListener("click", toggleMenu);
+    const linkEls = navlinks ? Array.from(navlinks.querySelectorAll("a")) : [];
+    const closeMenu = () => { menuBtn?.classList.remove("x"); navlinks?.classList.remove("open"); };
+    linkEls.forEach(a => a.addEventListener("click", closeMenu));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      await fetch(FORMSPREE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({
-          name: `${form.firstName} ${form.lastName}`,
-          email: form.email,
-          role: form.role,
-          source: form.source,
-          _subject: "New Global Flow Waitlist Signup!",
-        }),
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          const parent = e.target.parentElement;
+          const sibs = parent ? Array.from(parent.querySelectorAll(".rise")) : [];
+          (e.target as HTMLElement).style.transitionDelay = Math.min(sibs.indexOf(e.target as Element), 6) * 0.06 + "s";
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
       });
-      router.push("/thankyou");
-    } catch (err) {
-      alert("Something went wrong — please try again!");
-      setSubmitting(false);
-    }
-  };
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".gfw .rise").forEach(el => io.observe(el));
 
-  const inputStyle = { width: "100%", padding: "16px 20px", marginBottom: 14, background: C.bone, border: `1px solid ${C.borderLight}`, borderRadius: 8, fontSize: 14, color: C.dark, outline: "none", fontFamily: "'Montserrat',sans-serif" };
+    document.querySelectorAll(".gfw .hero .rise").forEach((el, i) => {
+      (el as HTMLElement).style.transitionDelay = i * 0.12 + "s";
+      el.classList.add("in");
+    });
+
+    function handle(formId: string, okId: string, subject: string, msg: string) {
+      const form = document.getElementById(formId) as HTMLFormElement | null;
+      if (!form) return;
+      form.addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        const emailEl = form.querySelector('input[name="email"]') as HTMLInputElement | null;
+        const email = emailEl ? emailEl.value.trim() : "";
+        const ok = document.getElementById(okId);
+        if (!email || !email.includes("@")) { if (ok) ok.textContent = "Please add a valid email."; return; }
+        const data = new FormData(form);
+        data.append("_subject", subject);
+        fetch("https://formspree.io/f/xkokrjzv", { method: "POST", body: data, headers: { Accept: "application/json" } })
+          .then(() => { if (ok) ok.textContent = msg; form.reset(); })
+          .catch(() => { if (ok) ok.textContent = msg; form.reset(); });
+      });
+    }
+    handle("womenForm", "womenOk", "New Wellness — Woman Interested", "Thank you. You are on the list.");
+    handle("corpForm", "corpOk", "New Wellness — Corporate Inquiry", "Received. Sarah will be in touch within 48 hours.");
+    handle("pracForm", "pracOk", "New Wellness — Practitioner Application", "Received. Sarah will be in touch within 48 hours.");
+
+    return () => { window.removeEventListener("scroll", onScroll); };
+  }, []);
 
   return (
-    <div style={{ fontFamily: "'Montserrat',sans-serif", color: C.charcoal, background: C.bg, minHeight: "100vh" }}>
-      <style>{`
-        *{box-sizing:border-box}
-        a{text-decoration:none}
-        .btn:hover{opacity:.88;transform:translateY(-1px)}
-        .tracked{letter-spacing:0.35em;text-transform:uppercase}
-      `}</style>
+    <div className="gfw">
+      <style>{CSS}</style>
 
-      {/* NAV — DROPDOWN */}
-      <nav style={{ borderBottom: `1px solid ${C.border}`, padding: "0 clamp(20px,5vw,60px)", position: "relative" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
-          <div style={{ position: "relative" }}>
-            <span onClick={() => setDropdown(!dropdown)} className="tracked" style={{ cursor: "pointer", fontFamily: "'Cormorant Garamond',serif", fontSize: 16, fontWeight: 500, color: C.teak }}>
-              The Global Flow <span style={{ fontSize: 10, marginLeft: 4, opacity: 0.5 }}>▾</span>
-            </span>
-            {dropdown && (
-              <div style={{ position: "absolute", top: 44, left: 0, background: C.bg, border: `1px solid ${C.borderLight}`, padding: "16px 28px", zIndex: 100, minWidth: 180 }}>
-                {[["top","Home"],["about","About"],["get","For You"],["join","Join"]].map(([id,l]) => (
-                  <button key={id} onClick={() => go(id)} className="tracked" style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", borderBottom: `1px solid ${C.border}`, padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, cursor: "pointer", fontFamily: "'Montserrat',sans-serif" }}>{l}</button>
-                ))}
-                <a href="/community" className="tracked" style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, fontFamily: "'Montserrat',sans-serif", textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>Community</a>
-                <a href="/pricing" className="tracked" style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, fontFamily: "'Montserrat',sans-serif", textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>Pricing</a>
-                <a href="/blog" className="tracked" style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 0", fontSize: 11, fontWeight: 500, color: C.fawn, fontFamily: "'Montserrat',sans-serif", textDecoration: "none" }}>Blog</a>
-              </div>
-            )}
-          </div>
-<a href="/prive" className="tracked" style={{ fontSize: 10, fontWeight: 500, color: "#8FAABE", textDecoration: "none" }}>Privé</a>
-          <a href="/wellness" className="tracked" style={{ fontSize: 10, fontWeight: 500, color: "#9CAF88", textDecoration: "none" }}>Wellness</a>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <a href="/login" style={{ width: 36, height: 36, borderRadius: "50%", border: `1px solid ${C.borderLight}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all .3s" }} title="Member Login">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.sage} strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </a>
-            <button onClick={() => go("join")} className="btn tracked" style={{ background: "transparent", color: C.fawn, border: `1px solid ${C.fawn}`, padding: "10px 24px", borderRadius: 50, cursor: "pointer", fontSize: 10, fontWeight: 500, transition: "all .3s", fontFamily: "'Montserrat',sans-serif" }}>Join the Waitlist</button>
-          </div>
+      <nav id="gfwnav">
+        <a href="#top" className="brand">The Global <span>Flow</span></a>
+        <div className="navlinks" id="gfwnavlinks">
+          <a href="#top" className="active">Wellness</a>
+          <a href="#connect" className="nav-cta">Get in Touch</a>
         </div>
+        <button className="menu-btn" id="gfwMenuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
       </nav>
 
-      {/* HERO */}
-      <Sec id="top" py={120}>
-        <div style={{ textAlign: "center" }}>
-          <p className="tracked" style={{ fontSize: 10, color: C.sage, marginBottom: 40, fontWeight: 500, letterSpacing: "0.4em" }}>For EAs who are done being "just an assistant"</p>
-          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(32px, 5vw, 54px)", fontWeight: 400, lineHeight: 1.12, color: C.dark, margin: "0 0 10px" }}>
-            The only transformation of its kind, built for EAs around the globe.
-          </h1>
-          <Divider />
-          <Body><em>Bring your laptop. And maybe a margarita.</em></Body>
-          <div style={{ marginTop: 36, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <button onClick={() => go("join")} className="btn tracked" style={{ background: C.fawn, color: C.bg, border: "none", padding: "14px 32px", borderRadius: 50, cursor: "pointer", fontSize: 11, fontWeight: 400, transition: "all .3s", fontFamily: "'Montserrat',sans-serif" }}>Join the Waitlist</button>
-            <button onClick={() => go("get")} className="btn tracked" style={{ background: "transparent", color: C.fawn, border: `1px solid ${C.fawn}`, padding: "14px 32px", borderRadius: 50, cursor: "pointer", fontSize: 11, fontWeight: 400, transition: "all .3s", fontFamily: "'Montserrat',sans-serif" }}>For You</button>
+      <header className="hero" id="top">
+        <div className="wrap">
+          <p className="eyebrow rise">For the Women Who Run Everything</p>
+          <h1 className="rise">The Global Flow <span className="em">Wellness</span></h1>
+          <p className="hero-sub rise">A global wellness platform bringing together nutrition, gut health, hormone optimization, integrative psychology, and ancient healing traditions for women operating at the highest levels of leadership.</p>
+          <div className="hero-rule rise"></div>
+          <p className="tag rise"><span className="dot"></span> Coming Soon</p>
+        </div>
+      </header>
+
+      <section className="vision">
+        <div className="wrap vision-grid">
+          <div className="rise">
+            <p className="label">The Vision</p>
+            <h2>You wouldn&apos;t run your business without a strategy.</h2>
+          </div>
+          <div className="vision-body rise">
+            <p>You run boardrooms, law firms, entire organizations. You make decisions that affect hundreds of people before most of them have had their morning coffee. You&apos;ve built something remarkable with your mind, your discipline, and your drive.</p>
+            <p>And your body has been keeping up with all of it without getting the same level of strategy, investment, or attention that you give to everything else in your life.</p>
+            <p>Global Flow Wellness is a curated network of the world&apos;s most trusted practitioners, brought together under one platform, speaking your language, honoring your culture, and built around the demands of the life you lead.</p>
+            <p>Why are you running your body without one?</p>
           </div>
         </div>
-      </Sec>
-
-      {/* VIBE */}
-      <div style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-        <Sec py={80}>
-          <div style={{ textAlign: "center" }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px, 4.5vw, 42px)", fontWeight: 400, lineHeight: 1.3, color: C.dark, textAlign: "center", margin: "0 0 20px" }}>
-              You run someone else's world every single day.<br />
-              <em style={{ color: C.teak }}>Now we've built something for yours.</em>
-            </h2>
-            <Divider />
-            <Body>You see everything, carry everything, and make it look effortless, now you have a space where someone truly understands what that takes.</Body>
-          </div>
-        </Sec>
-      </div>
-
-      {/* FOR YOU — FLIPPED */}
-      <Sec id="get" py={100}>
-        <div style={{ textAlign: "center", marginBottom: 50 }}>
-          <p className="tracked" style={{ fontSize: 10, color: C.sage, marginBottom: 24, letterSpacing: "0.4em" }}>For You</p>
-          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px, 4.5vw, 42px)", fontWeight: 400, lineHeight: 1.2, color: C.sage, textAlign: "center", margin: "0 0 18px" }}>Systems. Community. And the Occasional Meme.</h2>
-          <p style={{ fontSize: 14, lineHeight: 1.9, color: C.dark, textAlign: "center", maxWidth: 480, margin: "0 auto", fontWeight: 400 }}>Real tools for EAs. No fluff. No motivational posters. Let's make your job (and life) a little better.</p>
-        </div>
-        <div style={{ textAlign: "left" }}>
-          {[
-            { title: "15 Modules Unlike Anything That's Been Done Before", desc: "A complete transformation curriculum covering identity, systems, cultural intelligence, crisis prevention, revenue recognition, and more." },
-            { title: "200+ Automation Templates", desc: "Email templates, calendar systems, crisis dashboards, stakeholder trackers. Copy, paste, customize, done. Your exec will think you're a wizard." },
-            { title: "Culture Codes for 50+ Countries", desc: "Stop Googling \"how to email someone in Japan.\" We've built the cheat sheet for global communication. You're welcome." },
-            { title: "Shadow AI Playbook", desc: "Learn to predict what your exec needs before they need it. It's not mind-reading. It's a system. (OK fine, it's a little like mind-reading.)" },
-            { title: "Calendar Crime Scene Kit", desc: "Audit your exec's calendar. Identify the crimes. Calculate the cost. Present the evidence. Watch their face when they see the number." },
-            { title: "Live 6 Week Group Coaching Sessions", desc: "A 6 week coaching with EAs who get it. Q&A and occasional therapy vibes. Bring coffee. Or wine. We don't judge." },
-            { title: "The Private Community", desc: "The best (and most fun) private EA network you'll find. Ask anything. Vent safely. Share wins. Get real answers from people who live this every day." },
-            { title: "Session Replays", desc: "Whether you're working, napping, or in a time zone that doesn't cooperate, you'll have access to every session on-demand." },
-            { title: "Templates, Guides & Cheat Sheets", desc: "Workbooks for Before the Title, The Crime Scene, Know the Room, Read Their Mind, Speak Their World, Play the Game, and more. All downloadable. All yours." },
-          ].map((x, i) => (
-            <div key={i} style={{ padding: "28px 0", borderBottom: i < 8 ? `1px solid ${C.borderLight}` : "none" }}>
-              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 500, color: C.sage, margin: "0 0 6px" }}>{x.title}</p>
-              <p style={{ fontSize: 13, lineHeight: 1.8, color: C.dark, margin: 0, fontWeight: 400 }}>{x.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Sec>
-
-      {/* QUOTE */}
-      <section style={{ background: C.bg, padding: "80px clamp(20px,5vw,60px)", textAlign: "center" }}>
-        <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 400, color: C.sand, lineHeight: 1.4, maxWidth: 620, margin: "0 auto", fontStyle: "italic" }}>
-          "Sometimes you need to be around people who <em>just get it.</em>"
-        </p>
       </section>
 
-      {/* TESTIMONIALS */}
-      <Sec id="vibes" py={100}>
-        <p className="tracked" style={{ fontSize: 10, color: C.charcoal, textAlign: "center", marginBottom: 16, letterSpacing: "0.4em" }}>What members are saying</p>
-        <H2>Don't take our word for it. Take theirs.</H2>
-        <div style={{ height: 32 }} />
-        {[
-          { name: "Priya M.", q: "I joined looking for templates and found my people. The community alone is worth it — I've never been in a space where everyone just GETS what this job is like. Also, Sarah is hilarious. That helps.", color: C.sand },
-          { name: "Katherine D.", q: "The Shadow AI framework changed my entire relationship with my exec. He went from micromanaging to trusting me with real decisions. Three months in, he told the board I was his 'secret weapon.' I cried in the car.", color: C.sage },
-          { name: "Rachel S.", q: "I tracked $680K in revenue opportunities using the Recognition framework. When I showed my exec the number, she was speechless. I got promoted two months later. This isn't training — it's a career accelerator.", color: C.teak },
-          { name: "Jasmine T.", q: "Sarah knows what this job costs you because she LIVED it. This isn't some consultant who read about EAs. I've never felt more seen or more prepared. 10/10, no notes.", color: C.sand },
-          { name: "Elena K.", q: "We put three EAs through the program. The culture shift was immediate. Less chaos, less turnover, better communication. Our principals asked what happened. We just smiled.", color: C.sage },
-        ].map((t, i) => (
-          <div key={i} style={{ padding: "32px 0", borderBottom: i < 4 ? `1px solid ${C.borderLight}` : "none", textAlign: "center" }}>
-            <div style={{ display: "flex", justifyContent: "center", gap: 3, marginBottom: 14 }}>{[1,2,3,4,5].map(j => <Star key={j} />)}</div>
-            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 400, fontStyle: "italic", lineHeight: 1.7, color: C.dark, margin: "0 0 16px", maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>"{t.q}"</p>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: t.color, margin: "0 auto 8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, color: C.bg }}>{t.name[0]}</div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: C.dark, margin: 0 }}>{t.name}</p>
+      <section className="serves" id="serves">
+        <div className="wrap">
+          <p className="label rise" style={{ textAlign: "center" }}>Built For</p>
+          <h2 className="rise">The women who have earned their seat at the table.</h2>
+          <div className="roles rise">
+            <span className="role">CEOs</span>
+            <span className="role">Founders</span>
+            <span className="role">C-Suite Executives</span>
+            <span className="role">Attorneys</span>
+            <span className="role">Executive Assistants</span>
+            <span className="role">Chiefs of Staff</span>
+            <span className="role">Managing Directors</span>
+            <span className="role">Partners</span>
+            <span className="role">Board Members</span>
           </div>
-        ))}
-      </Sec>
+          <p className="rise">Every woman who has earned her seat at the table and is quietly wondering why her body isn&apos;t keeping up with the pace her mind set years ago.</p>
+        </div>
+      </section>
 
-      {/* ABOUT SARAH */}
-      <div style={{ borderTop: `1px solid ${C.border}` }}>
-        <Sec id="about" py={100}>
-          <FadeIn>
-            <p className="tracked" style={{ fontSize: 12, fontWeight: 500, color: C.sage, textAlign: "center", marginBottom: 20, letterSpacing: "0.4em" }}>Built by an EA, for an EA.</p>
-            <div style={{ width: 120, height: 120, borderRadius: "50%", background: `linear-gradient(135deg, ${C.sand}, ${C.teak})`, margin: "32px auto", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300, color: C.bg }}>S</div>
-            <Body>Island girl turned Manhattan EA turned lifestyle curator. I spent over a decade supporting C-suite executives in corporate New York, and before that I was an artist who somehow ended up in boardrooms. Life has a sense of humor.</Body>
-            <Body>I'm well traveled in a way that changed how I see people, not just places. I understand cultural norms because I've lived them, and that perspective is woven into everything I teach.</Body>
-            <Body>Today I am the founder of The Global Flow, mental health and wellbeing in the workplace advocate, a book lover, a wife, mom, certified nutritionist, and a soon-to-be Pilates instructor. I believe in constantly evolving, feeding your passions, leaning into the things that come easy to you, and love a good challenge.</Body>
-          </FadeIn>
-        </Sec>
-      </div>
+      <section className="pillars" id="pillars">
+        <div className="wrap">
+          <p className="label rise">What We Cover</p>
+          <h2 className="rise">Eight pillars of care, under one platform.</h2>
+          <p className="pillars-intro rise">Each pillar is led by a vetted practitioner and built around the reality of your schedule, your travel, and the body you bring to all of it.</p>
+          <div className="pillar-grid">
+            <div className="pillar rise"><span className="pillar-num">01</span><h3>Nutrition for High-Performing Women</h3><p>Nutrition strategies designed around your schedule, your travel, your body, and the demands you face daily. What to eat before a board meeting. How to fuel through a 14-hour day. What your body needs when you haven&apos;t slept properly in a week.</p></div>
+            <div className="pillar rise"><span className="pillar-num">02</span><h3>Gut Health</h3><p>Your gut is your second brain, and when it&apos;s off, everything is off. Bloating, inflammation, brain fog, anxiety, immune issues. We address the root causes, not the symptoms. Built around the reality that you eat in airports, at your desk, and between meetings.</p></div>
+            <div className="pillar rise"><span className="pillar-num">03</span><h3>Hormone Health at Every Stage</h3><p>Your hormones shift through every chapter of your life, and nobody told you how that would affect your performance, your sleep, your mood, your energy, or your decision-making. From your twenties through menopause and beyond, we build protocols that honor where your body is right now.</p></div>
+            <div className="pillar rise"><span className="pillar-num">04</span><h3>Somatic &amp; Relational Therapy</h3><p>Your body stores everything your mind tries to push through. Tension patterns, stress responses, and the relational dynamics that shape how you lead, communicate, and protect yourself. Body-based healing that meets you where you are.</p></div>
+            <div className="pillar rise"><span className="pillar-num">05</span><h3>Integrative Psychology</h3><p>The emotional weight of leadership is real and rarely addressed. Imposter syndrome at the executive level. Decision fatigue. The loneliness of being the only woman in the room. Evidence-based methods integrated with the reality of your daily life.</p></div>
+            <div className="pillar rise"><span className="pillar-num">06</span><h3>Narrative &amp; Inner Work</h3><p>The stories you carry shape how you lead, decide, and recover. We help you recognize the inherited and unconscious narratives running underneath your choices, and rewrite the ones that no longer serve the woman you&apos;ve become.</p></div>
+            <div className="pillar rise"><span className="pillar-num">07</span><h3>Mindfulness &amp; Yoga</h3><p>Mindfulness and movement practices designed for women who have five minutes between meetings and need them to count. Breathwork for the boardroom. Yoga that fits a real schedule.</p></div>
+            <div className="pillar rise"><span className="pillar-num">08</span><h3>Travel &amp; Stress Recovery</h3><p>Jet lag protocols, sleep optimization across time zones, hydration strategies, and recovery methods for women who live in transit. How to land in a new city and perform at your peak. How to come home and recover instead of collapse.</p></div>
+          </div>
+        </div>
+      </section>
 
-      {/* WHAT'S INSIDE */}
-      <section style={{ background: C.bone, padding: "80px clamp(20px,5vw,60px)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
-          <H2>What's inside The Global Flow?</H2>
-          <div style={{ height: 12 }} />
-          <Body>The Global Flow is a <strong style={{ color: C.dark, fontWeight: 500 }}>free community</strong> for Executive Assistants, Chiefs of Staff, Personal Assistants, and anyone in the business of running someone else's world while quietly losing their own. Inside, you'll find paid transformations, live programs, and resources designed to change how you work.</Body>
-          <div style={{ height: 12 }} />
-          <div style={{ textAlign: "left", maxWidth: 600, margin: "0 auto" }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: C.dark, marginBottom: 6 }}>Free Community Membership</p>
-            <p style={{ fontSize: 14, color: C.fawn, lineHeight: 1.7, marginBottom: 24, fontWeight: 300 }}>Access to the community, introductory templates like Before the Title, and a space where EAs connect and support each other.</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: C.dark, marginBottom: 6 }}>The Live 6-Week Transformation</p>
-            <p style={{ fontSize: 14, color: C.fawn, lineHeight: 1.7, marginBottom: 24, fontWeight: 300 }}>Six modules delivered live in a group cohort. Full access to all replays, every template from that transformation, and lifetime access to the community and materials.</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: C.dark, marginBottom: 6 }}>The Self-Guided Transformation</p>
-            <p style={{ fontSize: 14, color: C.fawn, lineHeight: 1.7, marginBottom: 24, fontWeight: 300 }}>All 15 modules at your own pace, including bonuses. Lifetime access to everything.</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: C.dark, marginBottom: 6 }}>1-on-1 Coaching</p>
-            <p style={{ fontSize: 14, color: C.fawn, lineHeight: 1.7, marginBottom: 24, fontWeight: 300 }}>12 weeks of private, intensive coaching with Sarah. Personalized systems, identity work, and a complete playbook built around you and your executive.</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: C.dark, marginBottom: 6 }}>The Community</p>
-            <p style={{ fontSize: 14, color: C.fawn, lineHeight: 1.7, marginBottom: 28, fontWeight: 300 }}>A private network of EAs from around the globe who get it. Ask anything, share wins, vent safely, and never feel alone in your role again.</p>
-            <div style={{ background: "rgba(136,133,106,0.1)", borderRadius: 12, padding: 24, border: "1px solid rgba(136,133,106,0.2)" }}>
-              <p className="tracked" style={{ fontSize: 10, color: C.sage, marginBottom: 8, letterSpacing: "0.3em" }}>Coming Soon</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: C.dark, marginBottom: 6 }}>Your Wellbeing, Non-Negotiable</p>
-              <p style={{ fontSize: 14, color: C.fawn, lineHeight: 1.7, margin: 0, fontWeight: 300 }}>A specialized module on mental health and wellbeing in the workplace, developed from Sarah's diploma studies at the Oxford School of Learning. Designed as an advanced add-on for Chiefs of Staff, senior PAs, and high-level EAs who carry more than anyone talks about.</p>
+      <section className="net">
+        <div className="wrap">
+          <p className="label rise">The Practitioner Network</p>
+          <h2 className="rise">One platform. The world&apos;s best practitioners.</h2>
+          <p className="net-sub rise">Every practitioner on this platform is personally vetted and aligned with the Global Flow philosophy: holistic, evidence-informed, culturally fluent, and built for women who lead.</p>
+          <div className="net-grid">
+            <div className="prac lead rise">
+              <div className="prac-mono">S</div>
+              <span className="prac-status">Founder</span>
+              <h3>Sarah DeSouza</h3>
+              <p>MS Integrative Psychology, specializing in Relational Intelligence &amp; Narrative Therapy. IIN Holistic Nutrition Certification, specializing in Gut &amp; Hormonal Health.</p>
+            </div>
+            <div className="prac rise">
+              <div className="prac-mono">A</div>
+              <span className="prac-status">Announced Soon</span>
+              <h3>Ayurvedic Practitioner</h3>
+              <p>Ancient Indian healing traditions adapted for modern executive life. Dosha-based nutrition, herbal protocols, and seasonal wellness rhythms.</p>
+            </div>
+            <div className="prac rise">
+              <div className="prac-mono">M</div>
+              <span className="prac-status">Announced Soon</span>
+              <h3>Menopause &amp; Lifespan Therapist</h3>
+              <p>Specialized in perimenopause, menopause, and post-menopausal wellness. Holistic hormone balancing, emotional support, and lifestyle protocols for every stage.</p>
+            </div>
+            <div className="prac rise">
+              <div className="prac-mono">G</div>
+              <span className="prac-status">Announced Soon</span>
+              <h3>Holistic Gut Health Specialist</h3>
+              <p>Women-focused gut health restoration. Microbiome analysis, elimination protocols, and nutrition plans that work around high-pressure schedules and international travel.</p>
+            </div>
+            <div className="prac rise">
+              <div className="prac-mono">H</div>
+              <span className="prac-status">Announced Soon</span>
+              <h3>Hormone Health Practitioner</h3>
+              <p>Holistic hormone optimization through nutrition, lifestyle, and natural protocols. Supporting women from their twenties through menopause and beyond.</p>
+            </div>
+            <div className="prac rise">
+              <div className="prac-mono">Y</div>
+              <span className="prac-status">Confirmed</span>
+              <h3>Mindfulness &amp; Yoga Instructor</h3>
+              <p>Breathwork, movement, and mindfulness practices designed for women who lead. Functional yoga that fits between meetings. Meditation that works in five minutes.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* WAITLIST FORM */}
-      <Sec id="join" py={100}>
-        <p className="tracked" style={{ fontSize: 11, color: C.teak, textAlign: "center", marginBottom: 16, letterSpacing: "0.4em" }}>Come find your people</p>
-        <H2>Join Our Waitlist</H2>
-        <Body>Our next intake for members will be coming soon. We bring new members in through cohorts so everyone gets a proper welcome and the community stays exceptional.</Body>
-        <form onSubmit={handleSubmit} style={{ maxWidth: 480, margin: "32px auto 0" }}>
-          <input required placeholder="First Name" value={form.firstName} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, firstName: e.target.value})} style={inputStyle} />
-          <input required placeholder="Last Name" value={form.lastName} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, lastName: e.target.value})} style={inputStyle} />
-          <input required type="email" placeholder="Email Address" value={form.email} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, email: e.target.value})} style={inputStyle} />
-          <input placeholder="Your Role (EA, CoS, PA, etc.)" value={form.role} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, role: e.target.value})} style={inputStyle} />
-          <select value={form.source} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({...form, source: e.target.value})} style={{...inputStyle, color: form.source ? C.dark : C.sage, appearance: "none"}}>
-            <option value="">How did you hear about us?</option>
-            <option value="Another EA told me">Another EA told me (love that)</option>
-            <option value="LinkedIn">LinkedIn</option>
-            <option value="Conference / Event">Conference / Event</option>
-            <option value="Just appeared in my feed">Just appeared in my feed like magic</option>
-          </select>
-          <button type="submit" disabled={submitting} className="btn tracked" style={{ width: "100%", padding: 16, marginTop: 8, background: submitting ? C.sage : C.fawn, color: C.bg, border: "none", borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: submitting ? "wait" : "pointer", transition: "all .2s", fontFamily: "'Montserrat',sans-serif" }}>{submitting ? "Sending..." : "I Want In"}</button>
-          <p style={{ fontSize: 12, color: C.sage, textAlign: "center", marginTop: 14, lineHeight: 1.5 }}>No spam and no sales calls. Just a warm welcome and next steps.</p>
-        </form>
-        <div style={{ textAlign: "center", marginTop: 40, padding: 28, background: C.bone, borderRadius: 12 }}>
-          <p style={{ fontSize: 16, color: C.dark, margin: "0 0 12px", fontWeight: 600 }}>Ready to jump in right now?</p>
-          <p style={{ fontSize: 14, color: C.fawn, margin: "0 0 20px", fontWeight: 300 }}>Join the community for free and start connecting with EAs around the globe today.</p>
-          <a href="/community" className="btn tracked" style={{ display: "inline-block", background: C.sage, color: C.bg, padding: "14px 36px", borderRadius: 50, fontSize: 11, fontWeight: 500, transition: "all .2s", textDecoration: "none", fontFamily: "'Montserrat',sans-serif" }}>Join Free</a>
-        </div>
-      </Sec>
-
-      {/* FAQ */}
-      <div style={{ borderTop: `1px solid ${C.border}` }}>
-        <Sec py={100}>
-          <H2>Got Questions? We've Got Answers.</H2>
-          <div style={{ height: 20 }} />
-          <FAQ q="Do I need my executive's permission to join?" a="Nope! This is built for YOU. Your exec doesn't need to be involved (though they'll definitely notice the difference). We do have an Executive-EA Partnership program coming soon where both people participate — but start with your own transformation first." />
-          <FAQ q="I'm a new EA. Is this too advanced?" a="Not even a little. If anything, you'll skip years of figuring things out the hard way. New EAs get the foundations. Senior EAs get the strategic frameworks. Everyone gets the community. And everyone gets the memes." />
-          <FAQ q="Can my company pay for this?" a="Yes! Most memberships are company-sponsored as professional development. We'll give you a business case template that makes your L&D team say yes immediately. Corporate invoicing available." />
-          <FAQ q="What if I'm not in the US?" a="We're global! Members from 20+ countries and counting. Sessions accommodate multiple time zones, and the Culture Codes training literally covers 50+ countries. International EAs aren't an afterthought here — they're the point." />
-          <FAQ q="Is this like other EA communities?" a="Honestly? No. Other communities are great for networking. We're great for networking AND installing 200+ systems that change how you work. Plus our community is genuinely funny, which is rare for professional development." />
-          <FAQ q="What's the waitlist about?" a="We bring new members in through cohort intakes so everyone gets a proper welcome and onboarding. It keeps the community tight and the experience personal. Referrals from existing members get priority." />
-          <FAQ q="Do you offer 1-on-1 training?" a="Yes! We offer private 1-on-1 training with Sarah for EAs who want an intensive, personalized experience. Details are shared once you're on the waitlist. Members get priority access to all future programs." />
-        </Sec>
-      </div>
-
-      {/* FINAL CTA */}
-      <section style={{ background: C.bg, padding: "70px clamp(20px,5vw,60px)", borderTop: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
-          <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 400, color: C.dark, lineHeight: 1.3, margin: "0 0 24px" }}>Ready to stop feeling alone in your role?</p>
-          <p style={{ fontSize: 15, color: C.sage, lineHeight: 1.7, margin: "0 0 28px", fontWeight: 300 }}>500+ EAs already found their people. You're next.</p>
-          <button onClick={() => go("join")} className="btn tracked" style={{ background: C.sage, color: C.bg, border: "none", padding: "16px 40px", borderRadius: 50, cursor: "pointer", fontSize: 11, fontWeight: 500, transition: "all .2s", fontFamily: "'Montserrat',sans-serif" }}>Join the Waitlist</button>
+      <section className="culture">
+        <div className="wrap">
+          <p className="label rise" style={{ textAlign: "center" }}>Rooted in Every Culture</p>
+          <h2 className="rise">Wellness has never been one-size-fits-all.</h2>
+          <p className="rise">Every culture has its own healing wisdom, and this platform honors that. Our practitioners draw from traditions across the globe, because a woman in São Paulo and a woman in Seoul deserve wellness that speaks to who they are.</p>
+          <div className="traditions rise">
+            <span className="trad">Caribbean</span><span className="trad">Indian &amp; Ayurvedic</span><span className="trad">Traditional Chinese Medicine</span>
+            <span className="trad">African Healing Traditions</span><span className="trad">Middle Eastern</span><span className="trad">Latin American &amp; Brazilian</span>
+            <span className="trad">Greek &amp; Mediterranean</span><span className="trad">Italian</span><span className="trad">French</span>
+            <span className="trad">South American</span><span className="trad">Eastern European</span><span className="trad">Japanese</span><span className="trad">Korean</span>
+          </div>
+          <small className="rise">Available in multiple major languages as the platform grows</small>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ padding: "36px clamp(20px,5vw,60px)", borderTop: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <span className="tracked" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 14, fontWeight: 500, color: C.teak }}>The Global Flow</span>
+      <section className="forms" id="connect">
+        <div className="wrap">
+          <div className="forms-head rise">
+            <p className="label" style={{ textAlign: "center" }}>Get in Touch</p>
+            <h2>Three ways to begin.</h2>
+            <p>Whether you are joining for yourself, bringing this to your organization, or partnering as a practitioner.</p>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <p style={{ fontSize: 11, color: C.sage }}>© 2026 The Global Flow™</p>
-            <div style={{ marginTop: 6, display: "flex", gap: 16, justifyContent: "flex-end" }}>
-              <a href="/privacy" style={{ fontSize: 9, color: C.sage, opacity: 0.6, textDecoration: "none" }}>Privacy Policy</a>
-              <a href="/terms" style={{ fontSize: 9, color: C.sage, opacity: 0.6, textDecoration: "none" }}>Terms of Service</a>
+          <div className="form-grid">
+
+            <div className="card rise">
+              <p className="label">For Women</p>
+              <h3>Stay in the Know</h3>
+              <p>Be the first to know when Global Flow Wellness launches. Leave your details and we&apos;ll reach out when we&apos;re ready for you.</p>
+              <form id="womenForm" noValidate>
+                <div className="field"><input type="text" name="name" placeholder="Your name" required /></div>
+                <div className="field"><input type="email" name="email" placeholder="Email address" required /></div>
+                <div className="field"><input type="text" name="title" placeholder="Your title (CEO, EA, Attorney, etc.)" /></div>
+                <div className="field">
+                  <label>What interests you most</label>
+                  <select name="interest">
+                    <option>Nutrition &amp; Gut Health</option>
+                    <option>Hormone Health</option>
+                    <option>Integrative Psychology</option>
+                    <option>Somatic Therapy</option>
+                    <option>Mindfulness &amp; Yoga</option>
+                    <option>All of the Above</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Would you be interested in a paid Founding Cohort</label>
+                  <select name="founding_interest">
+                    <option>Yes, I&apos;d pay for early access</option>
+                    <option>Maybe, tell me more</option>
+                    <option>Not yet, just want to stay informed</option>
+                  </select>
+                </div>
+                <button type="submit" className="btn">Notify Me</button>
+                <p className="form-ok" id="womenOk"></p>
+              </form>
+            </div>
+
+            <div className="card featured rise">
+              <p className="label">For Organizations</p>
+              <h3>Bring Global Flow to Your Team</h3>
+              <p>Executive wellness programs for firms, funds, and companies investing in the women who lead them.</p>
+              <form id="corpForm" noValidate>
+                <div className="field"><input type="text" name="company" placeholder="Organization name" required /></div>
+                <div className="field"><input type="text" name="name" placeholder="Your name &amp; role" required /></div>
+                <div className="field"><input type="email" name="email" placeholder="Work email" required /></div>
+                <div className="field">
+                  <label>How many people would this support</label>
+                  <select name="size">
+                    <option>1 to 10 leaders</option>
+                    <option>10 to 50</option>
+                    <option>50 to 200</option>
+                    <option>200+</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label>What are you exploring</label>
+                  <select name="interest">
+                    <option>Executive wellness program</option>
+                    <option>Group workshops &amp; retreats</option>
+                    <option>1:1 practitioner access for leadership</option>
+                    <option>Speaking &amp; events</option>
+                    <option>Custom program</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </div>
+                <div className="field"><textarea name="message" placeholder="Anything you'd like us to know (optional)"></textarea></div>
+                <button type="submit" className="btn">Start the Conversation</button>
+                <p className="form-ok" id="corpOk"></p>
+                <p className="form-note">All inquiries are confidential. You&apos;ll hear from Sarah within 48 hours.</p>
+              </form>
+            </div>
+
+            <div className="card rise">
+              <p className="label">For Practitioners</p>
+              <h3>Partner With Us</h3>
+              <p>Are you a holistic health practitioner who works with women in leadership? We&apos;re building a global network and would love to hear from you.</p>
+              <form id="pracForm" noValidate>
+                <div className="field"><input type="text" name="name" placeholder="Your name" required /></div>
+                <div className="field"><input type="email" name="email" placeholder="Email address" required /></div>
+                <div className="field"><input type="text" name="location" placeholder="Where are you based?" /></div>
+                <div className="field">
+                  <label>Your area of expertise</label>
+                  <select name="expertise">
+                    <option>Ayurvedic Medicine</option>
+                    <option>Nutrition &amp; Gut Health</option>
+                    <option>Hormone Health</option>
+                    <option>Menopause &amp; Lifespan Wellness</option>
+                    <option>Somatic / Body-Based Therapy</option>
+                    <option>Integrative Psychology</option>
+                    <option>Mindfulness &amp; Yoga</option>
+                    <option>Traditional / Cultural Healing</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <button type="submit" className="btn">Apply to Partner</button>
+                <p className="form-ok" id="pracOk"></p>
+                <p className="form-note">All inquiries are confidential. You&apos;ll hear from Sarah within 48 hours.</p>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div className="wrap">
+          <div className="foot-grid">
+            <div className="foot-brand">The Global <span>Flow</span></div>
+            <div className="foot-links">
+              <a href="/privacy">Privacy Policy</a>
+              <a href="/terms">Terms of Service</a>
             </div>
           </div>
+          <p className="copy">© 2026 The Global Flow™</p>
         </div>
       </footer>
     </div>
