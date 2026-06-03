@@ -209,7 +209,7 @@ export default function Home() {
         <div className="wrap vision-grid">
           <div className="rise">
             <p className="label">The Vision</p>
-            <h2>You give your best to everything but yourself.</h2>
+            <h2>The care you give everyone else is now yours.</h2>
           </div>
           <div className="vision-body rise">
             <p>You carry more than most people see, the work, the responsibilities, and the silent weight you never set down. While your mind, discipline, and heart have built something remarkable, your body has been running on fumes, operating without the same care, investment, and attention you give to everyone else.</p>
